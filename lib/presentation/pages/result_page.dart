@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:syafarapp/common/app_colors.dart';
 import 'package:syafarapp/common/routers.dart';
 import 'package:syafarapp/domain/hotel/entities/hotel.dart';
-import 'package:syafarapp/domain/quotation/entities/quotation_args.dart';
 import 'package:syafarapp/presentation/bloc/search/search_state.dart';
+import 'package:syafarapp/presentation/widgets/hotel_item.dart';
 
 class ResultPage extends StatefulWidget {
   final SearchLoaded searchData;
@@ -20,7 +21,8 @@ class _ResultPageState extends State<ResultPage> {
   String _sortOption = 'Termurah';
   RangeValues _priceRange = const RangeValues(0, 5000);
 
-  // Logika Filter & Sorting
+  final NumberFormat _currencyFormat = NumberFormat.decimalPattern('id');
+
   List<Hotel> get _filteredAndSortedHotels {
     List<Hotel> list = widget.searchData.hotels.where((hotel) {
       final matchName = hotel.name.toLowerCase().contains(
@@ -45,136 +47,211 @@ class _ResultPageState extends State<ResultPage> {
     final String city = widget.searchData.hotels.isNotEmpty
         ? widget.searchData.hotels.first.city
         : 'Pencarian';
-
-    // Format Tanggal
     final dateFormat = DateFormat('dd MMM yyyy');
     final String dateRangeStr =
         "${dateFormat.format(widget.searchData.checkIn)} - ${dateFormat.format(widget.searchData.checkOut)}";
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Hotel di $city"),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmarks),
-            onPressed: () => context.push(SAVED_QUOTATION_ROUTE),
-            tooltip: 'Quotation Tersimpan',
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.background,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // --- 1. Ringkasan Kebutuhan Pencarian (Ikut Terscroll) ---
-              SliverToBoxAdapter(
-                child: Container(
-                  margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(12),
+              SliverAppBar(
+                expandedHeight: 120.0,
+                pinned: true,
+                elevation: 0,
+                backgroundColor: AppColors.primary,
+                iconTheme: const IconThemeData(color: Colors.white),
+                flexibleSpace: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primaryDark, AppColors.primary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Ringkasan Kebutuhan",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.blue,
-                        ),
+                  child: FlexibleSpaceBar(
+                    titlePadding: const EdgeInsets.only(left: 48, bottom: 16),
+                    title: Text(
+                      "Hotel di $city",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.calendar_month,
-                            size: 16,
-                            color: Colors.blueGrey,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            dateRangeStr,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                    ),
+                  ),
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.bookmarks_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => context.push(SAVED_QUOTATION_ROUTE),
+                    tooltip: 'Quotation Tersimpan',
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.card,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.calendar_month_rounded,
+                              size: 18,
+                              color: AppColors.primary,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "${widget.searchData.pax} Jamaah | Tipe ${widget.searchData.roomType} | ${widget.searchData.rooms} Kamar | ${widget.searchData.nights} Malam",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                            const SizedBox(width: 8),
+                            Text(
+                              dateRangeStr,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: AppColors.textMain,
+                              ),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "${widget.searchData.pax} Jamaah  •  Tipe ${widget.searchData.roomType}  •  ${widget.searchData.rooms} Kamar  •  ${widget.searchData.nights} Malam",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppColors.primaryDark,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-
-              // --- 2. Area Filter & Search (Langsung Terbuka & Ikut Terscroll) ---
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.card,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Filter & Urutkan Pencarian",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.filter_list_rounded,
+                              size: 20,
+                              color: AppColors.primary,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              "Filter & Urutkan",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: AppColors.textMain,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          decoration: _inputDecoration(
+                            'Cari nama hotel...',
+                            Icons.search_rounded,
+                          ),
+                          onChanged: (val) =>
+                              setState(() => _searchQuery = val),
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          initialValue: _sortOption,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSub,
+                          ),
+                          decoration: _inputDecoration(
+                            'Urutkan Harga',
+                            Icons.sort_rounded,
+                          ),
+                          items: ['Termurah', 'Termahal'].map((String val) {
+                            return DropdownMenuItem(
+                              value: val,
+                              child: Text(
+                                val,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val) =>
+                              setState(() => _sortOption = val!),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Rentang Harga: ${_currencyFormat.format(_priceRange.start.toInt())} SAR - ${_currencyFormat.format(_priceRange.end.toInt())} SAR',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: AppColors.textMain,
+                          ),
+                        ),
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: AppColors.primary,
+                            inactiveTrackColor: AppColors.primaryLight,
+                            thumbColor: AppColors.accent,
+                            overlayColor: AppColors.accent.withValues(
+                              alpha: 0.2,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            decoration: const InputDecoration(
-                              hintText: 'Cari nama hotel...',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            onChanged: (val) =>
-                                setState(() => _searchQuery = val),
-                          ),
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<String>(
-                            value: _sortOption,
-                            decoration: const InputDecoration(
-                              labelText: 'Urutkan Harga',
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            items: ['Termurah', 'Termahal'].map((String val) {
-                              return DropdownMenuItem(
-                                value: val,
-                                child: Text(val),
-                              );
-                            }).toList(),
-                            onChanged: (val) =>
-                                setState(() => _sortOption = val!),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Rentang Harga: ${_priceRange.start.toInt()} SAR - ${_priceRange.end.toInt()} SAR',
-                          ),
-                          RangeSlider(
+                          child: RangeSlider(
                             values: _priceRange,
                             min: 0,
                             max: 5000,
@@ -186,20 +263,34 @@ class _ResultPageState extends State<ResultPage> {
                             onChanged: (val) =>
                                 setState(() => _priceRange = val),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-              // --- 3. Daftar Hotel (Ikut Terscroll) ---
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
               hotels.isEmpty
-                  ? const SliverFillRemaining(
+                  ? SliverFillRemaining(
                       child: Center(
-                        child: Text("Tidak ada hotel yang sesuai kriteria."),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.hotel_rounded,
+                              size: 64,
+                              color: AppColors.textSub.withValues(alpha: 0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              "Tidak ada hotel yang sesuai.",
+                              style: TextStyle(
+                                color: AppColors.textSub,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   : SliverPadding(
@@ -215,83 +306,17 @@ class _ResultPageState extends State<ResultPage> {
                           final double perPaxSar =
                               totalHotelSar / widget.searchData.pax;
 
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    hotel.name,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildRow(
-                                    'Rate',
-                                    '${hotel.rate.toInt()} SAR / room / night',
-                                  ),
-                                  _buildRow(
-                                    'Total Hotel',
-                                    '${totalHotelSar.toInt()} SAR',
-                                    isBold: true,
-                                  ),
-                                  _buildRow(
-                                    'Per Pax',
-                                    '${perPaxSar.toStringAsFixed(2)} SAR',
-                                    isBold: true,
-                                    color: Colors.blue[800],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        final args = QuotationArgs(
-                                          hotel: hotel,
-                                          searchData: widget.searchData,
-                                        );
-                                        context.push(
-                                          QUOTATION_ROUTE,
-                                          extra: args,
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue[800],
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'PILIH HOTEL',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          return HotelItem(
+                            hotel: hotel,
+                            currencyFormat: _currencyFormat,
+                            searchData: widget.searchData,
+                            totalHotelSar: totalHotelSar,
+                            perPaxSar: perPaxSar,
                           );
                         },
                       ),
                     ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           ),
         ),
@@ -299,27 +324,24 @@ class _ResultPageState extends State<ResultPage> {
     );
   }
 
-  Widget _buildRow(
-    String label,
-    String value, {
-    bool isBold = false,
-    Color? color,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: color ?? Colors.black,
-              fontSize: 14,
-            ),
-          ),
-        ],
+  InputDecoration _inputDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
+      filled: true,
+      fillColor: Colors.grey.shade100,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
     );
   }

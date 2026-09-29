@@ -11,13 +11,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchHotelsEvent>((event, emit) async {
       emit(SearchLoading());
 
-      // Validasi Check-out harus setelah check-in[cite: 1]
       if (!event.checkOut.isAfter(event.checkIn)) {
         emit(const SearchError("Check-out harus setelah check-in"));
         return;
       }
 
-      // Validasi Pax[cite: 1]
       if (event.pax <= 0) {
         emit(const SearchError("Jumlah jamaah tidak boleh 0"));
         return;
@@ -30,12 +28,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           emit(SearchError(failure.message));
         },
         (hotels) {
-          // Filter Hotel Berdasarkan Kota (Makkah / Madinah)[cite: 1]
           final filteredHotels = hotels
               .where((h) => h.city == event.city)
               .toList();
 
-          // Hitung Malam & Kamar[cite: 1]
           final nights = event.checkOut.difference(event.checkIn).inDays;
           final rooms = Calculator.calculateRoomsNeeded(
             event.pax,

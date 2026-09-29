@@ -18,10 +18,6 @@ class ConnectionFailure extends Failure {
   const ConnectionFailure(String message) : super(408, message);
 }
 
-class DatabaseFailure extends Failure {
-  const DatabaseFailure(String message) : super(1, message);
-}
-
 class CommonFailure extends Failure {
   const CommonFailure(String message) : super(2, message);
 }

@@ -6,7 +6,7 @@ import 'package:syafarapp/presentation/bloc/search/search_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  di.init(); // Inisialisasi Dependency Injection mirip Hafizku
+  di.init();
   runApp(const MyApp());
 }
 

@@ -23,7 +23,6 @@ class SearchLoaded extends SearchState {
   final int nights;
   final int rooms;
   final int pax;
-  // --- Tambahan variabel baru ---
   final DateTime checkIn;
   final DateTime checkOut;
   final String roomType;

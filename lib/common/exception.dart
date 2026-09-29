@@ -30,12 +30,6 @@ class ForbiddenException implements Exception {
   ForbiddenException(this.message);
 }
 
-class DatabaseException implements Exception {
-  final String message;
-
-  DatabaseException(this.message);
-}
-
 class TimeoutException implements Exception {
   final String message;
 

@@ -21,7 +21,6 @@ final GoRouter routers = GoRouter(
     GoRoute(
       path: RESULT_ROUTE,
       builder: (context, state) {
-        // Menerima data state SearchLoaded yang dikirim via 'extra'
         final searchState = state.extra as SearchLoaded;
         return ResultPage(searchData: searchState);
       },
