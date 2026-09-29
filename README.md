@@ -23,12 +23,12 @@ Aplikasi pencarian hotel Makkah/Madinah dan kalkulator estimasi harga per jamaah
 ## Cara Menjalankan Secara Lokal (Local Development)
 
 ### Backend (Node.js)
-1. Masuk ke folder backend: `cd backend`
+1. Masuk ke folder backend:
 2. Install dependencies: `npm install`
 3. Jalankan server: `npm run start:dev`
 4. API akan berjalan di `http://localhost:3000`
 
 ### Frontend (Flutter)
-1. Masuk ke folder frontend: `cd frontend`
+1. Masuk ke folder frontend:
 2. Install dependencies: `flutter pub get`
 3. Jalankan aplikasi web: `flutter run -d chrome`
